@@ -733,6 +733,9 @@ server_pool_conn(struct context *ctx, struct server_pool *pool, uint8_t *key,
         return NULL;
     }
 
+    string_init(&conn->secret);
+    conn->secret = server->secret;
+
     status = server_connect(ctx, server, conn);
     if (status != NC_OK) {
         server_close(ctx, conn);

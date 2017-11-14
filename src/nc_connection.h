@@ -89,6 +89,7 @@ struct conn {
     unsigned            done:1;          /* done? aka close? */
     unsigned            redis:1;         /* redis? */
     unsigned            authenticated:1; /* authenticated? */
+    struct string       secret;          /* password of for the server*/
 };
 
 TAILQ_HEAD(conn_tqh, conn);

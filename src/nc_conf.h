@@ -69,6 +69,7 @@ struct conf_server {
     struct string   pname;      /* server: as "hostname:port:weight" */
     struct string   name;       /* hostname:port or [name] */
     struct string   addrstr;    /* hostname */
+    struct string   secret;     /* secret */
     int             port;       /* port */
     int             weight;     /* weight */
     struct sockinfo info;       /* connect socket info */

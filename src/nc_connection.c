@@ -461,7 +461,7 @@ conn_authenticated(struct conn *conn)
 
     pool = conn->client ? conn->owner : ((struct server *)conn->owner)->owner;
 
-    if (!pool->require_auth) {
+    if (!pool->require_auth && conn->secret.data == NULL) {
         return true;
     }
 

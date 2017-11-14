@@ -2690,7 +2690,7 @@ redis_reply(struct msg *r)
         return redis_handle_auth_req(r, response);
     }
 
-    if (!conn_authenticated(c_conn)) {
+    if (!conn_authenticated(c_conn)) { 
         return msg_append(response, rsp_auth_required.data, rsp_auth_required.len);
     }
 
@@ -2844,6 +2844,9 @@ redis_add_auth(struct context *ctx, struct conn *c_conn, struct conn *s_conn)
     rstatus_t status;
     struct msg *msg;
     struct server_pool *pool;
+    uint32_t j, nserver;
+    struct conf_pool *cp;
+    struct string *s;
 
     ASSERT(!s_conn->client && !s_conn->proxy);
     ASSERT(!conn_authenticated(s_conn));
@@ -2856,8 +2859,18 @@ redis_add_auth(struct context *ctx, struct conn *c_conn, struct conn *s_conn)
         return NC_ENOMEM;
     }
 
-    status = msg_prepend_format(msg, "*2\r\n$4\r\nAUTH\r\n$%d\r\n%s\r\n",
-                                pool->redis_auth.len, pool->redis_auth.data);
+    nserver = array_n(&pool->server);
+    log_error("servers: %"PRIu32"", nserver);
+
+
+    if (s_conn->secret.data != NULL) {
+        status = msg_prepend_format(msg, "*2\r\n$4\r\nAUTH\r\n$%d\r\n%s\r\n",
+                                    s_conn->secret.len, s_conn->secret.data);
+    } else {
+        status = msg_prepend_format(msg, "*2\r\n$4\r\nAUTH\r\n$%d\r\n%s\r\n",
+                                    pool->redis_auth.len, pool->redis_auth.data);
+    }
+
     if (status != NC_OK) {
         msg_put(msg);
         return status;

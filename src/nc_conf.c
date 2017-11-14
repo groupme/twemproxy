@@ -119,6 +119,7 @@ conf_server_init(struct conf_server *cs)
     string_init(&cs->pname);
     string_init(&cs->name);
     string_init(&cs->addrstr);
+    string_init(&cs->secret);
     cs->port = 0;
     cs->weight = 0;
 
@@ -135,6 +136,7 @@ conf_server_deinit(struct conf_server *cs)
     string_deinit(&cs->pname);
     string_deinit(&cs->name);
     string_deinit(&cs->addrstr);
+    string_deinit(&cs->secret);
     cs->valid = 0;
     log_debug(LOG_VVERB, "deinit conf server %p", cs);
 }
@@ -157,6 +159,7 @@ conf_server_each_transform(void *elem, void *data)
     s->pname = cs->pname;
     s->name = cs->name;
     s->addrstr = cs->addrstr;
+    s->secret = cs->secret;
     s->port = (uint16_t)cs->port;
     s->weight = (uint32_t)cs->weight;
 
@@ -1537,9 +1540,9 @@ conf_add_server(struct conf *cf, struct command *cmd, void *conf)
     struct string *value;
     struct conf_server *field;
     uint8_t *p, *q, *start;
-    uint8_t *pname, *addr, *port, *weight, *name;
-    uint32_t k, delimlen, pnamelen, addrlen, portlen, weightlen, namelen;
-    char delim[] = " ::";
+    uint8_t *pname, *addr, *port, *weight, *name, *secret;
+    uint32_t k, delimlen, pnamelen, addrlen, portlen, weightlen, namelen, secretlen;
+    char delim[] = " :::";
 
     p = conf;
     a = (struct array *)(p + cmd->offset);
@@ -1564,6 +1567,8 @@ conf_add_server(struct conf *cf, struct command *cmd, void *conf)
     portlen = 0;
     name = NULL;
     namelen = 0;
+    secret = NULL;
+    secretlen = 0;
 
     delimlen = value->data[0] == '/' ? 2 : 3;
 
@@ -1617,6 +1622,14 @@ conf_add_server(struct conf *cf, struct command *cmd, void *conf)
 
     addr = start;
     addrlen = (uint32_t)(p - start + 1);
+    
+    if (strchr(addr, '@') != NULL) {
+        secret = strtok(addr, "@");
+        secretlen = strlen(secret);
+        addr = strtok(NULL, "@");
+        addr = strtok(addr, ":");
+        addrlen = strlen(addr);
+    }
 
     field->weight = nc_atoi(weight, weightlen);
     if (field->weight < 0) {
@@ -1651,11 +1664,18 @@ conf_add_server(struct conf *cf, struct command *cmd, void *conf)
     if (status != NC_OK) {
         return CONF_ERROR;
     }
-
+    
     status = string_copy(&field->addrstr, addr, addrlen);
     if (status != NC_OK) {
         return CONF_ERROR;
     }
+
+    if (secret != NULL) {
+        status = string_copy(&field->secret, secret, secretlen);
+        if (status != NC_OK) {
+            return CONF_ERROR;
+        }
+    } 
 
     /*
      * The address resolution of the backend server hostname is lazy.

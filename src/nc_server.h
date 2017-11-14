@@ -73,6 +73,7 @@ struct server {
     struct string      pname;         /* hostname:port:weight (ref in conf_server) */
     struct string      name;          /* hostname:port or [name] (ref in conf_server) */
     struct string      addrstr;       /* hostname (ref in conf_server) */
+    struct string      secret;        /* password of for the server*/      
     uint16_t           port;          /* port */
     uint32_t           weight;        /* weight */
     struct sockinfo    info;          /* server socket info */
