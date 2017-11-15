@@ -2,11 +2,12 @@
 m4_define([NC_MAJOR], 0)
 m4_define([NC_MINOR], 4)
 m4_define([NC_PATCH], 1)
+m4_define([NC_CUSTOM_PATCH], 1)
 m4_define([NC_BUGS], [manj@cs.stanford.edu])
 
 # Initialize autoconf
 AC_PREREQ([2.64])
-AC_INIT([nutcracker], [NC_MAJOR.NC_MINOR.NC_PATCH], [NC_BUGS])
+AC_INIT([nutcracker], [NC_MAJOR.NC_MINOR.NC_PATCH.NC_CUSTOM_PATCH], [NC_BUGS])
 AC_CONFIG_SRCDIR([src/nc.c])
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_HEADERS([config.h:config.h.in])
@@ -19,7 +20,8 @@ AM_INIT_AUTOMAKE([1.9 foreign])
 AC_DEFINE(NC_VERSION_MAJOR, NC_MAJOR, [Define the major version number])
 AC_DEFINE(NC_VERSION_MINOR, NC_MINOR, [Define the minor version number])
 AC_DEFINE(NC_VERSION_PATCH, NC_PATCH, [Define the patch version number])
-AC_DEFINE(NC_VERSION_STRING, "NC_MAJOR.NC_MINOR.NC_PATCH", [Define the version string])
+AC_DEFINE(NC_VERSION_CUSTOM_PATCH, NC_CUSTOM_PATCH, [Define the custom patch version number])
+AC_DEFINE(NC_VERSION_STRING, "NC_MAJOR.NC_MINOR.NC_PATCH.NC_CUSTOM_PATCH", [Define the version string])
 
 # Checks for language
 AC_LANG([C])
